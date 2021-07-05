@@ -1,0 +1,2 @@
+heroku login
+heroku run --app kvota python manage.py <command>

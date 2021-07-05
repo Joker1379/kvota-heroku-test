@@ -9,7 +9,7 @@ from .models import Vacancy, FavV
 V_L = ['Требуемое образование', 'Режим работы', 'Допустимая группа инвалидности', 'Город', 'Улица', 'Строение / Расположение офиса', 'Предоставление жилья', 'Email', 'Контактный телефон']
 
 def index(request):
-    data, V, v = {}, [], Vacancy.objects.all()
+    data, V, v = {}, [], Vacancy.objects.order_by('id')
     if request.method == 'POST':
         if request.POST['action'] == 'filter':
             e, m, s, l, w = request.POST.get('education'), request.POST.get('mode'), set(request.POST.getlist('skills')), set(request.POST.getlist('limits')), request.POST.get('wage')
@@ -57,7 +57,7 @@ def delete(request, vid):
     return redirect('/profile/'+str(request.user.id))
 
 def favorites(request):
-    data, V, v = {}, [], Vacancy.objects.all()
+    data, V, v = {}, [], Vacancy.objects.order_by('id')
     for i in v:
         if len(FavV.objects.filter(user=request.user, vacancy=i))==1 and FavV.objects.get(user=request.user, vacancy=i).U: V.insert(0, (i, True))
     data['filter'] = VacancySearch()
@@ -66,7 +66,7 @@ def favorites(request):
     return render(request, 'vacancy.html', data)
 
 def addu(request, vid, mode):
-    data, U, u, v, t, s, l = {}, [], User.objects.all(), Vacancy.objects.get(id=vid), True, set(request.POST.getlist('skills')), set(request.POST.getlist('limits'))
+    data, U, u, v, t, s, l = {}, [], User.objects.order_by('id'), Vacancy.objects.get(id=vid), True, set(request.POST.getlist('skills')), set(request.POST.getlist('limits'))
     if request.method == 'POST':
         if request.POST['action'] == 'filter':
             e, m, g = request.POST.get('education'), request.POST.get('move'), request.POST.get('group')
@@ -115,7 +115,7 @@ def EvalAction(request, vid, uid, act, uv):
     return HttpResponse()
 
 def DataDemo(request):
-    data, recs = {}, FavV.objects.all()
+    data, recs = {}, FavV.objects.order_by('id')
     data['items'] = list(reversed(recs))
     data['vlabels'] = V_L
     return render(request, 'datadisplay.html', data)
