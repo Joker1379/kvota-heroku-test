@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container profile">
+  <div class="row">
+    <div class="col-md-4">
+      <div class="row">
+        {% load static %}
+        <div class="col-12 d-flex justify-content-center">
+          <img src="{% static 'images/default_avatar.png' %}" class="avatar rounded_pic"/>
+        <!--
+        <div class="file btn btn-lg btn-primary">
+          Change Photo
+          <input type="file" name="file"/>
+        </div>
+        -->
+        </div>
+        <div class="col-12 pt-3 pb-3">
+          <center>
+          {% if uobj.profile.online %}
+            <span class="online"></span> <span class="text-success">online</span>
+          {% else %}
+            <span class="offline"></span> <span class="text-danger">offline</span><br>
+            <span class="text-muted">Last Seen:
+              {% if uobj.profile.last_seen %}
+                {{ uobj.profile.last_seen|timesince }} ago
+              {% else %}
+                awhile...
+              {% endif %}
+            </span>
+          {% endif %}
+          </center>
+        </div>
+      </div>
+    </div>
+    <div class="col-md">
+      <div class="profile-head">
+        <div class="d-flex justify-content-center justify-content-md-start">
+          <h1>
+          {{ uobj.username }}
+          </h1>
+        </div>
+        <div class="d-flex justify-content-center justify-content-md-start pb-4">
+          <span class='text-muted'>{{ uobj.date_joined }}</span>
+        </div>
+        <h6>
+          <span><strong>Желаемые cпециальности:</strong></span>
+          {% if user.id == uobj.id %}
+            {% for i in wish %}
+              <a href="/profile/{{user.id}}/wish/{{i}}"><span class="badge badge-success">{{ i }}</span></a>
+            {% endfor %}
+            <a class="open-AddItem text-muted" href='#' data-toggle="modal" data-id="wish" data-target="#add_modal">Добавить</a>
+          {% else %}
+            {% for i in wish %}
+              <span class="badge badge-success">{{ i }}</span>
+            {% endfor %}
+          {% endif %}
+        </h6>
+        <h6>
+          <span><strong>Полученные специальности:</strong></span>
+          {% if user.id == uobj.id %}
+            {% for i in profession %}
+              <a href="/profile/{{user.id}}/profession/{{i}}"><span class="badge badge-warning">{{ i }}</span></a>
+            {% endfor %}
+            <a class="open-AddItem text-muted" href="#" data-toggle="modal" data-id="profession" data-target="#add_modal">Добавить</a>
+          {% else %}
+            {% for i in profession %}
+              <span class="badge badge-warning">{{ i }}</span>
+            {% endfor %}
+          {% endif %}
+        </h6>
+        <h6>
+          <span><strong>Опыт:</strong></span>
+          {% if user.id == uobj.id %}
+            {% for i in experience %}
+              <a href="/profile/{{user.id}}/experience/{{i}}"><span class="badge badge-primary">{{ i }}</span></a>
+            {% endfor %}
+            <a class="open-AddItem text-muted" href="#" data-toggle="modal" data-id="experience" data-target="#add_modal">Добавить</a>
+          {% else %}
+            {% for i in experience %}
+              <span class="badge badge-primary">{{ i }}</span>
+            {% endfor %}
+          {% endif %}
+        </h6>
+        <hr>
+        <h6>
+          <span><strong>Навыки:</strong></span>
+          {% for i in uobj.profile.skills %}
+            <span class="badge badge-info">{{ i|slice:":-1" }}</span>
+          {% endfor %}
+        </h6>
+        <h6>
+          <span><strong>Физические ограничения:</strong></span>
+          {% for i in uobj.profile.limits %}
+            <span class="badge badge-danger">{{ i|slice:":-1" }}</span>
+          {% endfor %}
+        </h6>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-4 pb-3 order-last order-md-first">
+      <center>
+      {% if user.id == uobj.id %}
+        <a class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#profile_modal">Редактировать Профиль</a><br><hr>
+        <a class="btn btn-sm btn-outline-danger" href="/exit">Выйти</a>
+      {% endif %}
+      </center>
+    </div>
+    <div class="col-md-8 pt-1 pt-md-0 pb-5">
+      <ul class="nav nav-tabs" id="profile_tabs" role="tablist">
+        <li class="nav-item">
+          <a class="nav-link active" id="info-tab" data-toggle="tab" href="#info" role="tab" aria-controls="info" aria-selected="true">Информация</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="vacancy-tab" data-toggle="tab" href="#vacancy" role="tab" aria-controls="vacancy" aria-selected="false">Вакансии</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" id="courses-tab" data-toggle="tab" href="#courses" role="tab" aria-controls="courses" aria-selected="false">Курсы</a>
+        </li>
+      </ul>
+      <div class="tab-content profile-tab" id="profile_tab_content">
+        <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+          <div class="row pt-4">
+            <div class="col-md-4">
+              <strong>ФИО:</strong>
+            </div>
+            <div class="col-md-7 d-flex justify-content-start">
+              <p>{{ uobj.profile.fio }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <strong>Пол:</strong>
+            </div>
+            <div class="col-md-7 d-flex justify-content-start">
+              <p>{{ uobj.profile.sex }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <strong>Возраст:</strong>
+            </div>
+            <div class="col-md-7 d-flex justify-content-start">
+              <p>
+                {% if uobj.profile.age == 0 %}
+                  -
+                {% else %}
+                  {{ uobj.profile.age }}
+                {% endif %} 
+              </p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <strong>Образование:</strong>
+            </div>
+            <div class="col-md-7 d-flex justify-content-start">
+              <p>{{ uobj.profile.education }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <strong>Группа инвалидности:</strong>
+            </div>
+            <div class="col-md-7 d-flex justify-content-start">
+              <p>{{ uobj.profile.group }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <strong>Город:</strong>
+            </div>
+            <div class="col-md-7 d-flex justify-content-start">
+              <p>{{ uobj.profile.city }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <strong>Улица:</strong>
+            </div>
+            <div class="col-md-7 d-flex justify-content-start">
+              <p>{{ uobj.profile.street }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <strong>Готовность переезжать:</strong>
+            </div>
+            <div class="col-md-7 d-flex justify-content-start">
+              <p>{{ uobj.profile.move }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+              <strong>Контактный телефон:</strong>
+            </div>
+            <div class="col-md-7 d-flex justify-content-start">
+              <p>{{ uobj.profile.phone }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="tab-pane fade pt-4" id="vacancy" role="tabpanel" aria-labelledby="vacancy-tab">
+          <center>
+          {% if user.id == uobj.id %}
+            <a class="open-VacancyAction btn btn-sm btn-outline-primary" data-toggle="modal" data-id="add_vacancy" data-target="#vacancy_modal">Добавить Вакансию</a><br><br>
+            <ul class="list-group list-group-flush">
+              {% for item in vacancy %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <a data-id="{{item.name}}!{{item.date}}!{{item.vdata}}"
+                class="open-VacancyInfo" data-toggle="modal" data-target="#info_modal" href="#">{{ item.name|truncatechars:30 }}</a>
+                <span>
+                  <span class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Опции
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                      <li><a class="dropdown-item text-info" href="/users/{{item.id}}/all">Найти работников</a></li>
+                      <li><a data-id="{{item.name}}!{{item.description}}!{{item.education}}!{{item.skills}}!{{item.mode}}!{{item.group}}!{{item.limits}}!{{item.city}}!{{item.street}}!{{item.house}}!{{item.email}}!{{item.phone}}!{{item.id}}!{{item.wage}}!{{item.apartment}}"
+                        class="dropdown-item open-VacancyAction text-secondary" data-toggle="modal" data-target="#vacancy_modal" href="#">Изменить</a></li>
+                      <div class="dropdown-divider"></div>
+                      <li><a class="dropdown-item text-danger" href="/vdelete/{{item.id}}">Удалить</a></li>
+                    </ul>
+                  </span>
+                </span>
+              </li>
+              {% empty %}
+                Вы не добавляли вакансий...
+              {% endfor %}
+            </ul>
+          {% else %}
+            <ul class="list-group list-group-flush">
+              {% for item in vacancy %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  <a data-id="{{item.0.name}}!{{item.0.date}}!{{item.0.vdata}}"
+                  class="open-VacancyInfo" data-toggle="modal" data-target="#info_modal" href="#">{{ item.0.name }}</a>
+                  {% if user.is_authenticated %}
+                    {% if item.1 %}
+                      <span><input class="FavV star star-p align-top" width="10px" type="checkbox" data-id="{{item.0.id}}!{{user.id}}!u" onchange="FavV(this);"></span>
+                    {% else %}
+                      <span><input class="FavV star star-p align-top" type="checkbox" data-id="{{item.0.id}}!{{user.id}}!u" onchange="FavV(this);" checked></span>
+                    {% endif %}
+                  {% else %}
+                    <span class="badge badge-primary badge-pill">{{ item.0.date }}</span>
+                  {% endif %}
+                </li>
+              {% empty %}
+                Пользователь не предлагает вакансий...
+              {% endfor %}
+            </ul>
+          {% endif %}
+          </center>
+        </div>
+        <div class="tab-pane fade pt-4" id="courses" role="tabpanel" aria-labelledby="courses-tab">
+          <center>
+          {% if user.id == uobj.id %}
+            <a class="btn btn-sm btn-outline-primary" href="#">Добавить Курс</a><br><br>
+            Вы не добавляли курсов...
+          {% else %}
+            Пользователь не является организатором курсов...
+          {% endif %}
+          </center>
+        </div>
+      </div>
+    </div>
+  </div>     
+</div>
+{% endblock content %}

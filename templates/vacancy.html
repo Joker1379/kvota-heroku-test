@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+  <div class="col pt-1 pb-3 order-1">
+    {% if user.is_authenticated %}
+      <a class="btn btn-outline-warning" href="/vfavorites">Избранные</a>
+      <a class="btn btn-outline-primary" href="/">Все</a>
+    {% else %}
+      <a class="btn btn-outline-primary" href="/">Все Вакансии</a>
+    {% endif %}
+  </div>
+  <div class="col-lg text-center pt-1 pb-3 order-last order-lg-2">
+    <form id="Search" method="POST">
+        {% csrf_token %}
+        <input id="SearchEl" name="search" type="search" class="form-control rounded" placeholder="Поиск..." aria-label="Search" aria-describedby="search-addon"/>
+        <button type="submit" class="btn btn-outline-primary" name ="action" value="search">Найти</button>
+    </form>
+  </div>
+  <div class="col d-flex justify-content-end pt-1 pb-3 order-3">
+    <a class="btn btn-outline-primary" data-toggle="modal" data-target="#filter_modal">Фильтр Вакансий</a> 
+  </div>
+</div>
+<div class="row mb-2">
+  {% for item in vacancy %}
+  <div class="col-md-6">
+    <div class="row no-gutters border rounded overflow-hidden flex-md-row mb-4 shadow-sm h-md-250 position-relative">
+      <div class="col p-4 d-flex flex-column position-static">
+        <div class="row">
+          <div class="col-3 pl-4 d-flex justify-content-top">
+            {% if user.is_authenticated %}
+              {% if item.1 %}
+                <a id="ButtonOverStretched"><input class="FavV star align-top" type="checkbox" data-id="{{item.0.id}}!{{user.id}}!u" onchange="FavV(this);"></a>
+              {% else %}
+                <a id="ButtonOverStretched"><input class="FavV star align-top" type="checkbox" data-id="{{item.0.id}}!{{user.id}}!u" onchange="FavV(this);" checked></a>
+              {% endif %}
+            {% endif %}
+          </div>
+          <div class="col-9"><h3 class="mb-0">{{ item.0.name|truncatechars:13 }}</h3></div>
+        </div>
+        <div class="row pl-3 justify-content-center">
+          <div class="mb-1 text-muted">{{ item.0.date }}</div>
+        </div>
+        <div class="row pl-3 justify-content-center">
+          {% if item.0.wage == 0 %}
+            Зарплата не указана
+          {% else %}
+            <strong>{{ item.0.wage }}р.</strong>
+          {% endif %}
+        </div>
+        <strong class="d-inline-block mb-2 text-dark">Описание:</strong>
+        <p class="card-text mb-auto">{{ item.0.description|truncatechars:100 }}</p>
+        <a data-id="{{item.0.name}}!{{item.0.date}}!{{item.0.vdata}}"
+        class="open-VacancyInfo stretched-link" data-toggle="modal" data-target="#info_modal" href="#">Подробнее...</a>
+      </div>
+      <div class="col-auto d-none d-lg-block">
+        <svg class="bd-placeholder-img" width="200" height="270" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/></svg>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+    <div class="col d-flex justify-content-center"><strong>Доступных вакансий не найдено...</strong></div>
+  {% endfor %}
+</div>
+{% endblock content %}

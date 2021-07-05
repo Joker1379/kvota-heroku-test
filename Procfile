@@ -1,0 +1,1 @@
+web: gunicorn kvota.wsgi --log-file -

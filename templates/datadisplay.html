@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<table class="table">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Дата</th>
+      <th scope="col">Вакансия</th>
+      <th scope="col">Потенциальный работник</th>
+      <th scope="col">Интерес работодателя</th>
+      <th scope="col">Интерес работника</th>
+      <th scope="col">Рейтинг совместимости</th>
+    </tr>
+  </thead>
+  {% for i in items %}
+    {% if i.rate == 0 %}
+      <tr class="table-danger">
+    {% elif i.rate < 0.5 %}
+      <tr class="table-secondary">
+    {% elif i.rate < 0.75 %}
+      <tr class="table-primary">
+    {% else %}
+      <tr class="table-success">
+    {% endif %}
+      <th scope="row">{{i.date}}</th>
+      <td>
+        <a data-id="{{i.vacancy.name}}!{{i.vacancy.date}}!{{i.vacancy.vdata}}"
+        class="open-VacancyInfo" data-toggle="modal" data-target="#info_modal" href="#">{{i.vacancy.name}}</a>
+      </td>
+      <td><a href="/profile/{{i.user.id}}">{{i.user.username}}</a></td>
+      {% if i.V %}
+        <td><input type="checkbox" checked onclick="return false;"></td>
+      {% else %}
+        <td><input type="checkbox" onclick="return false;"></td>
+      {% endif %}
+      {% if i.U %}
+        <td><input type="checkbox" checked onclick="return false;"></td>
+      {% else %}
+        <td><input type="checkbox" onclick="return false;"></td>
+      {% endif %}
+      <td><strong>{{i.rate}}</strong></td>
+    </tr>
+  {% empty %}
+    Записей не найдено...
+  {% endfor %}
+</table>
+{% endblock content %}

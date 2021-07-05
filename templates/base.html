@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=yes">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">​
+  {% load crispy_forms_tags %}
+  <title>Kvota-S</title>
+  <style>
+  #ButtonOverStretched {
+    z-index: 3;
+    position: relative;
+  }
+  #Search {
+    display: flex;
+    flex-direction: row;
+  }
+  #SearchEl {display: block;}
+  .star {
+    visibility: hidden;
+    font-size: 55px;
+    line-height: 50px;
+    cursor: pointer;
+    position: absolute;
+  }
+  .star:before {
+    content: "\2605";
+    visibility: visible;
+    color: #F7DC6F;
+  }
+  .star:checked:before {
+    content: "\2606";
+    visibility: visible;
+    color: #F7DC6F;
+  }
+  .star-p {
+    font-size: 35px;
+    line-height: 20px;
+    position: relative;
+  }
+  .online:before {
+    content: "\25C9";
+    font-size: 20px;
+    line-height: 24px;
+    color: #5cb85c;
+  }
+  .offline:before {
+    content: "\25C9";
+    font-size: 20px;
+    line-height: 24px;
+    color: #d9534f;
+  }
+  th, td {text-align: center;}
+  .modal-sm {max-width: 430px;}
+  .rounded_pic {border-radius: 50%;}
+  .dropdown-menu {margin-left: -90px;}
+  .display-4 {font-size: 2.5rem;} /*1rem = 16px*/
+  .btn {font-size: 0.8rem;}
+  .nav-link {font-size: 0.93rem;}
+  .nav-main {font-size: 1.5rem;}
+  .open-AddItem {font-size: 0.9rem;}
+  .avatar {
+    width: 150px;
+    height: 150px;
+  }
+  @media (min-width: 768px) { 
+    .display-4 {font-size: 3.5rem;}
+    .btn {font-size: 1rem;}
+    .nav-link {font-size: 1rem;}
+    .open-AddItem {font-size: 1rem;}
+    .avatar {
+      width: 250px;
+      height: 250px;
+    }
+  }
+  </style>
+</head>
+<body>
+<div class="container">
+  <header class="kvota-header">
+    <div class="row flex-nowrap justify-content-between align-items-center">
+      <div class="col pt-3 d-none d-lg-block">
+        <!-- Add Logo Here -->
+      </div>
+      <div class="col text-center">
+        <a href="/"><h1 class="display-4">Kvota-S</h1></a>
+      </div>
+      <div class="col d-flex justify-content-end align-items-center pt-3">
+        {% if user.is_authenticated %}
+          <a class="btn btn-outline-primary" href="/profile/{{ user.id }}">Профиль</a>
+        {% else %}
+          <a class="btn btn-outline-primary" data-toggle="modal" data-target="#login_modal">Вход</a>
+          &nbsp
+          <a class="btn btn-outline-secondary" data-toggle="modal" data-target="#registration_modal">Регистрация</a>
+        {% endif %} 
+      </div>
+    </div>
+  </header>
+  <div class="nav-main">
+    <nav class="nav d-flex justify-content-around">
+      <a class="p-2 text-muted" href="/">Вакансии</a>
+      <a class="p-2 text-muted" href="/cources/">Курсы</a>
+      <a class="p-2 text-muted" href="#">Справка</a>
+    </nav>
+  </div>
+  <hr>
+  <div>{% block content%}{% endblock content %}</div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.min.js" integrity="sha384-w1Q4orYjBQndcko6MimVbzY0tgp4pWB4lZ7lr30WKz0vr/aWKhXdBNmNb5D92v7s" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+
+<script>
+$(document).on("click", ".open-AddItem", function () {
+  var item = $(this).data('id');
+  $(".modal-footer #category").val(item);
+});
+$(document).on("click", ".open-VacancyInfo", function () {
+  var data = $(this).data('id').split("!");
+  $(".modal-content #name").html(data[0]);
+  if (data[15] == '0') $(".modal-content #wage").html('Зарплата не указана');
+  else $(".modal-content #wage").html(data[15]+'р.');
+  $(".modal-content #date").html(data[1]);
+  $(".modal-content #description").html(data[2]);
+  $(".modal-content #education").html(data[3]);
+  $(".modal-content #mode").html(data[4]);
+  $(".modal-content #group").html(data[5]);
+  $(".modal-content #city").html(data[6]);
+  $(".modal-content #street").html(data[7]);
+  $(".modal-content #house").html(data[8]);
+  $(".modal-content #apartment").html(data[16]);
+  $(".modal-content #email").html(data[9]);
+  $(".modal-content #phone").html(data[10]);
+  $(".modal-content #v_username").html(data[11]);
+  document.getElementById("v_username").setAttribute("href", "/profile/"+data[12]);
+  skills = data[13].split(', '), limits = data[14].split(', ');
+  s = '', l = '';
+  for (let i = 0; i < skills.length; i++) {
+    s += '<span class="badge badge-info">'+skills[i].slice(0, -1)+'</span> '
+  }
+  for (let i = 0; i < limits.length; i++) {
+    l += '<span class="badge badge-danger">'+limits[i].slice(0, -1)+'</span> '
+  }
+  $(".modal-content #skills").html(s);
+  $(".modal-content #limits").html(l);
+});
+$(document).on('click', '.open-VacancyAction', function () {
+  var action = $(this).data('id');
+  if (action == "add_vacancy"){
+    $('#v_form [name=name]').val('');
+    $('#v_form [name=wage]').val(0);
+    $('#v_form [name=description]').val('');
+    $('#v_form [name=education]').val('-');
+    $('#v_form [name=mode]').val('-');
+    $('#v_form [name=group]').val('-');
+    $('#v_form [name=city]').val('');
+    $('#v_form [name=street]').val('');
+    $('#v_form [name=house]').val('');
+    $('#v_form [name=apartment]').val('-');
+    $('#v_form [name=email]').val('');
+    $('#v_form [name=phone]').val('');
+    $('.modal-footer #v_action').val(action);
+  } else {
+    data = action.split('!');
+    $('#v_form [name=name]').val(data[0]);
+    $('#v_form [name=wage]').val(data[13]);
+    $('#v_form [name=description]').val(data[1]);
+    $('#v_form [name=education]').val(data[2]);
+    $('#v_form [name=skills]').val(data[3].split(', '));
+    $('#v_form [name=mode]').val(data[4]);
+    $('#v_form [name=group]').val(data[5]);
+    $('#v_form [name=limits]').val(data[6].split(', '));
+    $('#v_form [name=city]').val(data[7]);
+    $('#v_form [name=street]').val(data[8]);
+    $('#v_form [name=house]').val(data[9]);
+    $('#v_form [name=apartment]').val(data[14]);
+    $('#v_form [name=email]').val(data[10]);
+    $('#v_form [name=phone]').val(data[11]);
+    $('.modal-footer #v_action').val('red_vacancy!'+data[12]);
+  }
+});
+function FavV(cb) {
+  let xhr = new XMLHttpRequest();
+  dt = cb.dataset.id.split('!');
+  if (cb.checked) xhr.open('GET', '/ea/'+dt[0]+'/'+dt[1]+'/0/'+dt[2]+'/');
+  else xhr.open('GET', '/ea/'+dt[0]+'/'+dt[1]+'/1/'+dt[2]+'/');
+  xhr.send();
+}
+function Registration(f) {
+  event.preventDefault();
+  $.ajax({
+    url: '/registration/',
+    type: 'POST',
+    dataType: "json",
+    data: { 
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+      username: f.username.value,
+      password1: f.password1.value,
+      password2: f.password2.value,
+    },
+    success: function (resp) {
+      element = document.getElementById('reger');
+      element.innerHTML = resp.errors;
+      if (resp.v == 1) window.location.href = '/';
+    },
+    error: function (jqXhr, textStatus, errorMessage) {
+      // alert (errorMessage);
+    }
+  });
+}
+function Login(f) {
+  event.preventDefault();
+  $.ajax({
+    url: '/login/',
+    type: 'POST',
+    dataType: "json",
+    data: { 
+      csrfmiddlewaretoken: '{{ csrf_token }}',
+      username: f.username.value,
+      password: f.password.value,
+    },
+    success: function (resp) {
+      element = document.getElementById('loger');
+      element.innerHTML = resp.errors;
+      if (resp.v == 1) window.location.href = '/';
+    },
+    error: function (jqXhr, textStatus, errorMessage) {
+      // alert (errorMessage);
+    }
+  });
+}
+</script>
+</body>
+
+<div class="modal fade" id="registration_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Регистрация</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="POST" onsubmit="Registration(this);return false;">
+        {% csrf_token %}
+        <div class="modal-body">
+          <table>
+            {{ registration|crispy }}
+          </table>
+          <div class="text-danger" id="reger"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+          <button type="submit" class="btn btn-primary" name ="action" value="registration">Продолжить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="login_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Вход</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="POST" onsubmit="Login(this);return false;">
+        {% csrf_token %}
+        <div class="modal-body">
+          <table>
+            {{ login|crispy }}
+          </table>
+          <div class="text-danger" id="loger"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+          <button type="submit" class="btn btn-primary" name = "action" value = "login">Продолжить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="profile_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Информация Профиля</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="modal-body">
+            {{ profile|crispy }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary" name = "action" value = "info">Принять</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="add_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Добавить</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="modal-body">
+          <input class="form-control" type="text" placeholder="Введите значение..." name="input">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary" id="category" name="action" value="category">Принять</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="vacancy_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="v_modal_litle">Информация о Вакансии</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="POST" id="v_form">
+        {% csrf_token %}
+        <div class="modal-body">
+            {{ vform|crispy }}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary" id="v_action" name="action">Принять</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="info_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-8 pt-5">
+            <center>
+              <h2><label id="name"></label></h2>
+              <strong><label id="wage"></label></strong><br>
+              <label class="badge badge-primary badge-pill" id="date"></label><br>
+              <a id="v_username" href=""></a>
+            </center>
+          </div>
+          <div class="col pt-3 d-none d-lg-block">
+            <!--Add image here-->
+            <svg class="bd-placeholder-img" width="200" height="200" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice" focusable="false" role="img" aria-label="Placeholder: Thumbnail"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"/></svg>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col pt-3">
+            <center>
+              <label id="description"></label>
+            </center>
+          </div>
+        </div>
+        <hr>
+        <center>
+        <h6>
+          <span><strong>Желательные Навыки: </strong></span>
+          <span id="skills"> - </span>
+        </h6>
+        <h6>
+          <span><strong>Недопустимые Ограничения: </strong></span>
+          <span id="limits"> - </span>
+        </h6>
+        </center>
+        <hr>
+        {% for i in vlabels %}
+        <div class="row justify-content-center">
+          <div class="col-md-5 pb-1 d-flex justify-content-center"><strong>{{i}}:</strong></div>
+          <div class="col-md-5 pb-1 d-flex justify-content-center">
+              {% if i == "Требуемое образование" %}
+                <label id="education"></label>
+              {% elif i == "Режим работы" %}
+                <label id="mode"></label>
+              {% elif i == "Допустимая группа инвалидности" %}
+                <label id="group"></label>
+              {% elif i == "Город" %}
+                <label id="city"></label>
+              {% elif i == "Улица" %}
+                <label id="street"></label>
+              {% elif i == "Строение / Расположение офиса" %}
+                <label id="house"></label>
+              {% elif i == "Предоставление жилья" %}
+                <label id="apartment"></label>
+              {% elif i == "Email" %}
+                <label id="email"></label>
+              {% elif i == "Контактный телефон" %}
+                <label id="phone"></label>
+              {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        <br>
+        <div class="row justify-content-center">
+            <button class="btn btn-primary" data-dismiss="modal">Закрыть</button>
+        </div>
+        <br>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="filter_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="v_modal_litle">Фильтр</h5>
+        *(Незаполненные поля не учитываются во время фильтрации)
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form method="POST" id="v_form">
+        {% csrf_token %}
+        <div class="modal-body">
+            {{ filter|crispy }}
+        </div>
+        <div class="modal-footer">
+          {% if user.is_authenticated and request.path == '/' %}
+            <button type="submit" class="btn btn-success" name="action" value="suitable">Подходящие мне</button>
+          {% elif user.is_authenticated %}
+            <button type="submit" class="btn btn-success" name="action" value="suitable">Подходящие для данной вакансии</button>
+          {% endif %}
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Отмена</button>
+          <button type="submit" class="btn btn-primary" name="action" value="filter">Принять</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+</html>
