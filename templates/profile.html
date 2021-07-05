@@ -16,17 +16,17 @@
         </div>
         <div class="col-12 pt-3 pb-3">
           <center>
-          {% if uobj.profile.is_online %}
+          {% if uobj.profile.online %}
             <span class="online"></span> <span class="text-success">online</span>
           {% else %}
             <span class="offline"></span> <span class="text-danger">offline</span><br>
-            <!--<span class="text-muted">Last Seen:
+            <span class="text-muted">Last Seen:
               {% if uobj.profile.last_seen %}
                 {{ uobj.profile.last_seen|timesince }} ago
               {% else %}
                 awhile...
               {% endif %}
-            </span>-->
+            </span>
           {% endif %}
           </center>
         </div>
