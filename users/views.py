@@ -36,7 +36,7 @@ def index(request, userid):
             form = VacancyForm(request.POST, instance=vacancy)
             form.save()
     if user != request.user:
-        for i in Vacancy.objects.filter(user = user).order_by('-id'):
+        for i in Vacancy.objects.filter(user = user).order_by('id'):
             if request.user.is_authenticated and len(FavV.objects.filter(user=request.user, vacancy=i))==1 and FavV.objects.get(user=request.user, vacancy=i).U: V.insert(0, (i, True))
             else: V.insert(0, (i, False))
     else: V = Vacancy.objects.filter(user = user).order_by('-id')
